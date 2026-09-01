@@ -19,7 +19,7 @@ const normalizeProjectIconBackground = (value: string | null | undefined): strin
 };
 
 export type ProjectIdentitySaveData = {
-  label: string;
+  label: string | null;
   icon: string | null;
   color: string | null;
   iconBackground: string | null;
@@ -27,6 +27,10 @@ export type ProjectIdentitySaveData = {
   defaultModel: string | null;
   defaultVariant: string | null;
 };
+
+const getDefaultProjectName = (project: Pick<ProjectEntry, 'path'>): string => (
+  project.path.split(/[\\/]/).filter(Boolean).pop() || 'Root'
+);
 
 type EditableProject = Pick<
   ProjectEntry,
@@ -47,7 +51,7 @@ type ProjectIdentity = {
 const EMPTY_IDENTITY: ProjectIdentity = { label: '', icon: null, color: null, iconBackground: null, defaultAgent: undefined, defaultModel: undefined, defaultVariant: undefined };
 
 const identityOf = (project: EditableProject): ProjectIdentity => ({
-  label: project.label ?? '',
+  label: project.label?.trim() || getDefaultProjectName(project),
   icon: project.icon ?? null,
   color: project.color ?? null,
   iconBackground: project.iconBackground ?? null,
@@ -174,7 +178,7 @@ export const useProjectIdentityForm = (project: EditableProject | null) => {
   const showImagePreview = !previewImageFailed && (hasPendingUploadImageIcon || showStoredImagePreview);
 
   const hasChanges = Boolean(project) && (
-    name.trim() !== (project?.label ?? '').trim()
+    name.trim() !== (project?.label?.trim() || (project ? getDefaultProjectName(project) : ''))
     || icon !== (project?.icon ?? null)
     || color !== (project?.color ?? null)
     || iconBackground !== (project?.iconBackground ?? null)
@@ -268,10 +272,6 @@ export const useProjectIdentityForm = (project: EditableProject | null) => {
     }
 
     const trimmed = name.trim();
-    if (!trimmed) {
-      return null;
-    }
-
     if (pendingUploadIconFile) {
       setIsUploadingIcon(true);
       const uploadResult = await uploadProjectIcon(project.id, pendingUploadIconFile);
@@ -305,7 +305,7 @@ export const useProjectIdentityForm = (project: EditableProject | null) => {
     }
 
     return {
-      label: trimmed,
+      label: trimmed && trimmed !== getDefaultProjectName(project) ? trimmed : null,
       icon,
       color,
       iconBackground: normalizeProjectIconBackground(willRemoveImageIcon ? null : iconBackground),
