@@ -5,7 +5,8 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { ThemeSystemContext, type ThemeContextValue } from '@/contexts/theme-system-context';
 import { getDefaultTheme } from '@/lib/theme/themes';
 
-import { ProjectHeaderIdentity } from './sortableItems';
+import { I18nProvider } from '@/lib/i18n';
+import { SortableProjectItem } from './sortableItems';
 
 const defaultTheme = getDefaultTheme(false);
 const themeContext = {
@@ -13,6 +14,9 @@ const themeContext = {
   availableThemes: [defaultTheme],
   setTheme: () => {},
   customThemesLoading: false,
+  customThemeIds: [],
+  importTheme: async () => defaultTheme,
+  deleteImportedTheme: async () => {},
   reloadCustomThemes: async () => {},
   isSystemPreference: false,
   setSystemPreference: () => {},
@@ -26,7 +30,13 @@ const themeContext = {
 
 const renderProjectHeader = (label: string) => renderToStaticMarkup(
   <ThemeSystemContext.Provider value={themeContext}>
-    <ProjectHeaderIdentity id="project-1" projectLabel={label} projectIcon="folder" />
+    <I18nProvider>
+      <SortableProjectItem id="project-1" projectLabel={label} projectIcon="folder"
+        projectDescription="/repo" isCollapsed={false} isRepo={false}
+        hideDirectoryControls={true} mobileVariant={false} alwaysShowActions={false}
+        onToggle={() => {}} onNewSession={() => {}} onRenameStart={() => {}} onClose={() => {}}
+        openSidebarMenuKey={null} setOpenSidebarMenuKey={() => {}} />
+    </I18nProvider>
   </ThemeSystemContext.Provider>,
 );
 

@@ -114,7 +114,8 @@ export const useProjectIdentityForm = (project: EditableProject | null) => {
   // form's own auto-save, and re-seeding on each of those wiped the name
   // mid-typing (#3552).
   const formIdentityRef = React.useRef<ProjectIdentity>(EMPTY_IDENTITY);
-  formIdentityRef.current = { label: name, icon, color, iconBackground, defaultAgent, defaultModel, defaultVariant };
+  const displayName = name.trim() || (project ? getDefaultProjectName(project) : '');
+  formIdentityRef.current = { label: displayName, icon, color, iconBackground, defaultAgent, defaultModel, defaultVariant };
   const seededRef = React.useRef<{ projectId: string | null; identity: ProjectIdentity }>({ projectId: null, identity: EMPTY_IDENTITY });
 
   React.useEffect(() => {
@@ -178,7 +179,7 @@ export const useProjectIdentityForm = (project: EditableProject | null) => {
   const showImagePreview = !previewImageFailed && (hasPendingUploadImageIcon || showStoredImagePreview);
 
   const hasChanges = Boolean(project) && (
-    name.trim() !== (project?.label?.trim() || (project ? getDefaultProjectName(project) : ''))
+    displayName !== (project?.label?.trim() || (project ? getDefaultProjectName(project) : ''))
     || icon !== (project?.icon ?? null)
     || color !== (project?.color ?? null)
     || iconBackground !== (project?.iconBackground ?? null)
